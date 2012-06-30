@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/textview"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:text="Cart ID"
+	android:textStyle="italic"/>
+    
+    <EditText
+        android:id="@+id/cart_id"
+        android:layout_width="300px"
+        android:layout_height="60px"
+        android:scrollbars="vertical"
+        android:textSize="18sp"
+        android:gravity="left"
+        android:layout_marginTop="2dip"
+        android:inputType="textCapSentences"
+        >
+    </EditText>
+    
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/textview"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:text="Player 1 ID"
+	android:textStyle="italic"/>
+    
+    <EditText
+        android:id="@+id/player1_id"
+        android:layout_width="300px"
+        android:layout_height="60px"
+        android:scrollbars="vertical"
+        android:textSize="18sp"
+        android:gravity="left"
+        android:layout_marginTop="2dip"
+        android:inputType="textCapSentences"
+        >
+    </EditText>
+    
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/textview"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:text="Player 2 ID"
+	android:textStyle="italic"/>
+    
+    <EditText
+        android:id="@+id/player2_id"
+        android:layout_width="300px"
+        android:layout_height="60px"
+        android:scrollbars="vertical"
+        android:textSize="18sp"
+        android:gravity="left"
+        android:layout_marginTop="2dip"
+        android:inputType="textCapSentences"
+        >
+    </EditText>
+    
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/textview"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:text="Caddie 1 ID"
+	android:textStyle="italic"/>
+    
+    <EditText
+        android:id="@+id/caddie1_id"
+        android:layout_width="300px"
+        android:layout_height="60px"
+        android:scrollbars="vertical"
+        android:textSize="18sp"
+        android:gravity="left"
+        android:layout_marginTop="2dip"
+        android:inputType="textCapSentences"
+        >
+    </EditText>
+    
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/textview"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:text="Caddie 2 ID"
+	android:textStyle="italic"/>
+    
+    <EditText
+        android:id="@+id/caddie2_id"
+        android:layout_width="300px"
+        android:layout_height="60px"
+        android:scrollbars="vertical"
+        android:textSize="18sp"
+        android:gravity="left"
+        android:layout_marginTop="5dip"
+        android:inputType="textCapSentences"
+        >
+    </EditText>
+    
+
+</LinearLayout>
