@@ -276,8 +276,8 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String user_id = input1.getText().toString();
-				validateUserID(""+club_id, user_id);
-				checkValidity();
+//				validateUserID(""+club_id, user_id);
+//				checkValidity();
 			}
 		});
 
@@ -620,8 +620,6 @@ Matrix m = new Matrix();
 	}
 	
 	private void validateUserID(String id, String user_id){
-		System.out.println("Club ID: "+id);
-		System.out.println("User ID: "+user_id);
 		HttpClient client = new DefaultHttpClient();
 		HttpPost post = new HttpPost("http://www.alliancerational.com/golf/uservalidate.php");
 		String result = "";

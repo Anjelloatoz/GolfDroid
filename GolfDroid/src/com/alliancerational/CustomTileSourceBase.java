@@ -1,7 +1,7 @@
 package com.alliancerational;
 
 import org.osmdroid.ResourceProxy.string;
-import org.osmdroid.tileprovider.tilesource.BitmapTileSourceBase;
+ import org.osmdroid.tileprovider.tilesource.BitmapTileSourceBase;
 
 public class CustomTileSourceBase extends BitmapTileSourceBase {
 
