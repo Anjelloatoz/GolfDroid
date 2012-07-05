@@ -601,14 +601,13 @@ Matrix m = new Matrix();
 		catch(Exception ex1){
 			System.out.println("Exception caught in the readHoleFile line 93: "+ex1);
 			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-	        alertbox.setMessage("Error occured reading the XML file");
+	        alertbox.setMessage("Error occured reading the XML file: "+ex1);
 	        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface arg0, int arg1) {
 	            }
 	        });
 	        alertbox.show();
 		}
-
 	}
 	
 	private void stepTwo(Document document){
