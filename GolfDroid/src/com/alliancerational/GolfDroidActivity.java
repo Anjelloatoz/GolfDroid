@@ -128,7 +128,21 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		setContentView(R.layout.main);
 		getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
 		second_layout_label = (TextView) findViewById(R.id.second_screen_label);
-		readHoleFile();
+		AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+        alertbox.setMessage("Before reading the holes file.");
+        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                stepOne();
+            }
+        });
+        alertbox.show();
+	}
+	
+	private void stepOne(){
+        readHoleFile();
+	}
+	
+	private void stepThree(){
 		second_layout = (AnimatedPanel)findViewById(R.id.second_layout);
 		second_layout.setLayoutAnimExit(second_layout, second_layout.getContext());
 		
@@ -231,6 +245,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
         if (!mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){  
             System.out.println("GPS disabled");
       }
+
 	}
 	
 	private void getHole(){
@@ -581,10 +596,22 @@ Matrix m = new Matrix();
 			doc_builder = doc_build_factory.newDocumentBuilder();
 			input_stream = new FileInputStream("/sdcard/holes/MillGreenHoles.xml");
 			document = doc_builder.parse(input_stream);
+			stepTwo(document);
 		}
 		catch(Exception ex1){
 			System.out.println("Exception caught in the readHoleFile line 93: "+ex1);
+			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+	        alertbox.setMessage("Error occured reading the XML file");
+	        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface arg0, int arg1) {
+	            }
+	        });
+	        alertbox.show();
 		}
+
+	}
+	
+	private void stepTwo(Document document){
 		document.getDocumentElement().normalize();
 		Node club_node = document.getFirstChild();
 		Element club_element = (Element)club_node;
@@ -617,6 +644,7 @@ Matrix m = new Matrix();
 		System.out.println("Number of hazards: "+hazard_list.size());
 
 		getHole();
+		stepThree();
 	}
 	
 	private void validateUserID(String id, String user_id){
