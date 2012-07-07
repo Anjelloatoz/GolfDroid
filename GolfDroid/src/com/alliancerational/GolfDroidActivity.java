@@ -69,6 +69,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.alliancerational.android.FileIO.LocalFileReader;
 
 public class GolfDroidActivity extends Activity implements LocationListener{
 	private MapController mapController;
@@ -139,7 +140,56 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 	}
 	
 	private void stepOne(){
-        readHoleFile();
+		Document hole_file = LocalFileReader.readFile("/sdcard/holes/MillGreenHoles.xml", this);
+		GolfClub golf_club = new GolfClub(hole_file);
+		getHole(golf_club.getHoleList());
+	}
+	
+	private void getHole(final ArrayList<Hole> holes_list){
+		final RadioButton[] rb = new RadioButton[holes_list.size()];
+		final RadioGroup rg = new RadioGroup(this);
+		rg.setOrientation(RadioGroup.VERTICAL);
+		for(int i=0; i<holes_list.size(); i++){
+			rb[i]  = new RadioButton(this);
+			rg.addView(rb[i]);
+			rb[i].setText(holes_list.get(i).getName());
+		}
+		final AlertDialog.Builder hole_dialog = new AlertDialog.Builder(this);
+		hole_dialog.setTitle("Hole");
+		hole_dialog.setMessage("Please select the hole");
+		hole_dialog.setView(rg);
+		hole_dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				int rbid = rg.getCheckedRadioButtonId();
+				View rb = rg.findViewById(rbid);
+				int idx = rg.indexOfChild(rb);
+
+				System.out.println("Selected hole is: "+idx);
+				setHole(holes_list.get(idx));
+				rll.setBearing(bearing_degrees);
+				hole_number = idx;
+			}
+		});
+		hole_dialog.show();
+	}
+	
+	private void setHole(Hole hole){
+		green_center = hole.getGreenCenter();
+		green_front = hole.getGreenFront();
+		green_rear = hole.getGreenRear();
+//		bearing_degrees = hole.getOrientation();
+		this.satellite_tile_source = hole.getSatelliteTileSource();
+		this.drawing_tile_source = hole.getDrawingTileSource();
+		System.out.println("satellite_tile_source is: "+satellite_tile_source);
+		System.out.println("drawing_tile_source is: "+drawing_tile_source);
+		mapView.setTileSource(new OnlineTileSourceBase(satellite_tile_source, ResourceProxy.string.unknown, 0, 19, 256, ".png", "http://mt3.google.com/vt/v=w2.97") {
+			@Override
+			public String getTileURLString(final MapTile aTile) {
+				return getBaseUrl() + "&x=" + aTile.getX() + "&y=" + aTile.getY() + "&z=" + aTile.getZoomLevel();
+			}
+		});
+		mapController.animateTo(green_center);
+		mapView.invalidate();
 	}
 	
 	private void stepThree(){
@@ -171,7 +221,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		blue_line_paint.setColor(Color.BLUE);
 		blue_line_paint.setStrokeWidth(2);
 		blue_line_paint.setTextSize(24);
-
+		
 		yellow_boundary_paint.setColor(Color.WHITE);
 		yellow_boundary_paint.setStyle(Paint.Style.STROKE);
 		yellow_boundary_paint.setPathEffect(dashPath);
@@ -248,33 +298,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 
 	}
 	
-	private void getHole(){
-		final RadioButton[] rb = new RadioButton[hole_list.size()];
-		final RadioGroup rg = new RadioGroup(this);
-		rg.setOrientation(RadioGroup.VERTICAL);
-		for(int i=0; i<hole_list.size(); i++){
-			rb[i]  = new RadioButton(this);
-			rg.addView(rb[i]); //the RadioButtons are added to the radioGroup instead of the layout
-			rb[i].setText(hole_list.get(i).getName());
-		}
-		final AlertDialog.Builder hole_dialog = new AlertDialog.Builder(this);
-		hole_dialog.setTitle("Hole");
-		hole_dialog.setMessage("Please select the hole");
-		hole_dialog.setView(rg);
-		hole_dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				int rbid = rg.getCheckedRadioButtonId();
-				View rb = rg.findViewById(rbid);
-				int idx = rg.indexOfChild(rb);
-
-				System.out.println("Selected hole is: "+idx);
-				setHole(hole_list.get(idx));
-				rll.setBearing(bearing_degrees);
-				hole_number = idx;
-			}
-		});
-		hole_dialog.show();
-	}
+	
 	
 	private void inputUserID(){
 		
@@ -564,52 +588,32 @@ Matrix m = new Matrix();
 			}
 		});
 	}
-	
+
 	
 
-	private void setHole(Hole hole){
-		green_center = hole.getGreenCenter();
-		green_front = hole.getGreenFront();
-		green_rear = hole.getGreenRear();
-//		bearing_degrees = hole.getOrientation();
-		this.satellite_tile_source = hole.getSatelliteTileSource();
-		this.drawing_tile_source = hole.getDrawingTileSource();
-		System.out.println("satellite_tile_source is: "+satellite_tile_source);
-		System.out.println("drawing_tile_source is: "+drawing_tile_source);
-		mapView.setTileSource(new OnlineTileSourceBase(satellite_tile_source, ResourceProxy.string.unknown, 0, 19, 256, ".png", "http://mt3.google.com/vt/v=w2.97") {
-			@Override
-			public String getTileURLString(final MapTile aTile) {
-				return getBaseUrl() + "&x=" + aTile.getX() + "&y=" + aTile.getY() + "&z=" + aTile.getZoomLevel();
-			}
-		});
-		mapController.animateTo(green_center);
-		mapView.invalidate();
-		
-	}
-
-	private void readHoleFile(){
-		InputStream input_stream = null;
-		Document document = null;
-		DocumentBuilderFactory doc_build_factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder doc_builder = null;
-		try{
-			doc_builder = doc_build_factory.newDocumentBuilder();
-			input_stream = new FileInputStream("/sdcard/holes/MillGreenHoles.xml");
-			document = doc_builder.parse(input_stream);
-			stepTwo(document);
-		}
-		catch(Exception ex1){
-			System.out.println("Exception caught in the readHoleFile line 93: "+ex1);
-			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-	        alertbox.setMessage("Error occured reading the XML file: "+ex1);
-	        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface arg0, int arg1) {
-	            }
-	        });
-	        alertbox.show();
-		}
-	}
-	
+//	private void readHoleFile(){
+//		InputStream input_stream = null;
+//		Document document = null;
+//		DocumentBuilderFactory doc_build_factory = DocumentBuilderFactory.newInstance();
+//		DocumentBuilder doc_builder = null;
+//		try{
+//			doc_builder = doc_build_factory.newDocumentBuilder();
+//			input_stream = new FileInputStream("/sdcard/holes/MillGreenHoles.xml");
+//			document = doc_builder.parse(input_stream);
+//			stepTwo(document);
+//		}
+//		catch(Exception ex1){
+//			System.out.printn("Exception caught in the readHoleFile line 93: "+ex1);
+//			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+//	        alertbox.setMessage("Error occured reading the XML file: "+ex1);
+//	        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+//	            public void onClick(DialogInterface arg0, int arg1) {
+//	            }
+//	        });
+//	        alertbox.show();
+//		}
+//	}
+//	
 	private void stepTwo(Document document){
 		document.getDocumentElement().normalize();
 		Node club_node = document.getFirstChild();

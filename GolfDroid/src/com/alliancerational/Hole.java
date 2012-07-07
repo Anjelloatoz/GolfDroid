@@ -8,6 +8,15 @@ public class Hole {
 	private GeoPoint green_front;
 	private GeoPoint green_center;
 	private GeoPoint green_rear;
+	private GeoPoint tee_point;
+	public GeoPoint getTee_point() {
+		return tee_point;
+	}
+
+	public void setTee_point(GeoPoint tee_point) {
+		this.tee_point = tee_point;
+	}
+
 	private String name = "";
 	private int orientation = 0;
 	private String satellite_tile_source = "";
