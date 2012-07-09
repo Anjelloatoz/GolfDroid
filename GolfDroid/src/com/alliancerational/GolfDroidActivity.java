@@ -158,8 +158,13 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		}
 		
 		Bundle dialog_bundle = new Bundle();
-		dialog_bundle.putString("Key", "Value");
+		ArrayList<String> hole_names = new ArrayList<String>();
+		for(int i = 0; i < holes_list.size(); i++){
+			hole_names.add(holes_list.get(i).getName());
+		}
+//		dialog_bundle.putStringArrayList("options", hole_names);
 		Intent intent = new Intent(this, ModalActivity.class);
+		intent.putStringArrayListExtra("options", hole_names);
 //		this.getApplicationContext().startActivity(intent, REQUEST_CODE);
 		this.startActivityForResult(intent, REQUEST_CODE);
 		
