@@ -1,6 +1,7 @@
 package com.alliancerational;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -121,6 +122,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 	
 	String satellite_tile_source = "";
 	String drawing_tile_source = "";
+	static int REQUEST_CODE = 1;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -154,7 +156,15 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			rg.addView(rb[i]);
 			rb[i].setText(holes_list.get(i).getName());
 		}
-		final AlertDialog.Builder hole_dialog = new AlertDialog.Builder(this);
+		
+		Bundle dialog_bundle = new Bundle();
+		dialog_bundle.putString("Key", "Value");
+		Intent intent = new Intent(this, ModalActivity.class);
+//		this.getApplicationContext().startActivity(intent, REQUEST_CODE);
+		this.startActivityForResult(intent, REQUEST_CODE);
+		
+		System.out.println("After calling the sub activity.");
+		AlertDialog.Builder hole_dialog = new AlertDialog.Builder(this);
 		hole_dialog.setTitle("Hole");
 		hole_dialog.setMessage("Please select the hole");
 		hole_dialog.setView(rg);
@@ -171,6 +181,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			}
 		});
 		hole_dialog.show();
+		System.out.println("After showing the dialog");
 	}
 	
 	private void setHole(Hole hole){
@@ -584,7 +595,7 @@ Matrix m = new Matrix();
 		final Button hole_button = (Button)findViewById(R.id.hole);
 		hole_button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				getHole();
+//				getHole();
 			}
 		});
 	}
@@ -646,7 +657,7 @@ Matrix m = new Matrix();
 		}
 		System.out.println("Number of hazards: "+hazard_list.size());
 
-		getHole();
+//		getHole();
 		stepThree();
 	}
 	
