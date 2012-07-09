@@ -2,6 +2,7 @@ package com.alliancerational;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.content.Intent;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 public class ModalActivity extends Activity implements
 RadioGroup.OnCheckedChangeListener {
 	ArrayList<String> options;
+	static int RESULTCODE = 2;
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -65,5 +67,12 @@ RadioGroup.OnCheckedChangeListener {
 		int idx = group.indexOfChild(rb);
 
 		System.out.println("Selected hole is: "+idx);
+		Bundle b = new Bundle();
+		  b.putString("Value", "Successfully returned");
+		  Intent intent = new Intent();
+		  intent.putExtras(b);
+		  intent.putExtra("selection", idx);
+		  setResult(RESULTCODE, intent);
+		  finish();
 	}
 }

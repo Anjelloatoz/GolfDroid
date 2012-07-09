@@ -94,7 +94,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 	Bitmap tee_bmp;
 	Bitmap golfer_bmp;
 	Bitmap cross_bmp;
-	
+
 	TextView second_layout_label;
 
 	private int scrollLimitNorthE6;
@@ -103,25 +103,26 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 	private int scrollLimitWestE6;
 	private int lastVaildX;
 	private int lastValidY;
-	
+
 	LocationManager mlocManager;
 	private String provider;
 	int location_segment_number = 250;
-	
+
 	private String club_id;
 	private String validation_result = "no";
-	
+
 	Matrix transform_matrix = new Matrix();
 	AffineTransform tap_transformer = null;
-	
+
 	int bearing_degrees = 60;
 	int zoom_level = 0;
 	AnimatedPanel second_layout;
 	int hole_number = 0;
 	RotatingLinearLayout rll;
-	
+
 	String satellite_tile_source = "";
 	String drawing_tile_source = "";
+	GolfClub golf_club;
 	static int REQUEST_CODE = 1;
 
 	/** Called when the activity is first created. */
@@ -132,21 +133,21 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
 		second_layout_label = (TextView) findViewById(R.id.second_screen_label);
 		AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-        alertbox.setMessage("Before reading the holes file.");
-        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface arg0, int arg1) {
-                stepOne();
-            }
-        });
-        alertbox.show();
+		alertbox.setMessage("Before reading the holes file.");
+		alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface arg0, int arg1) {
+				stepOne();
+			}
+		});
+		alertbox.show();
 	}
-	
+
 	private void stepOne(){
 		Document hole_file = LocalFileReader.readFile("/sdcard/holes/MillGreenHoles.xml", this);
-		GolfClub golf_club = new GolfClub(hole_file);
+		golf_club = new GolfClub(hole_file);
 		getHole(golf_club.getHoleList());
 	}
-	
+
 	private void getHole(final ArrayList<Hole> holes_list){
 		final RadioButton[] rb = new RadioButton[holes_list.size()];
 		final RadioGroup rg = new RadioGroup(this);
@@ -156,18 +157,16 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			rg.addView(rb[i]);
 			rb[i].setText(holes_list.get(i).getName());
 		}
-		
-		Bundle dialog_bundle = new Bundle();
+
 		ArrayList<String> hole_names = new ArrayList<String>();
 		for(int i = 0; i < holes_list.size(); i++){
 			hole_names.add(holes_list.get(i).getName());
 		}
-//		dialog_bundle.putStringArrayList("options", hole_names);
+
 		Intent intent = new Intent(this, ModalActivity.class);
 		intent.putStringArrayListExtra("options", hole_names);
-//		this.getApplicationContext().startActivity(intent, REQUEST_CODE);
 		this.startActivityForResult(intent, REQUEST_CODE);
-		
+
 		System.out.println("After calling the sub activity.");
 		AlertDialog.Builder hole_dialog = new AlertDialog.Builder(this);
 		hole_dialog.setTitle("Hole");
@@ -179,21 +178,25 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 				View rb = rg.findViewById(rbid);
 				int idx = rg.indexOfChild(rb);
 
-				System.out.println("Selected hole is: "+idx);
 				setHole(holes_list.get(idx));
 				rll.setBearing(bearing_degrees);
 				hole_number = idx;
 			}
 		});
 		hole_dialog.show();
-		System.out.println("After showing the dialog");
 	}
-	
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		int chosen_hole_number = data.getIntExtra("selection", 0);
+		golf_club.setSelectedHole(chosen_hole_number);
+	}
+
 	private void setHole(Hole hole){
 		green_center = hole.getGreenCenter();
 		green_front = hole.getGreenFront();
 		green_rear = hole.getGreenRear();
-//		bearing_degrees = hole.getOrientation();
+		//		bearing_degrees = hole.getOrientation();
 		this.satellite_tile_source = hole.getSatelliteTileSource();
 		this.drawing_tile_source = hole.getDrawingTileSource();
 		System.out.println("satellite_tile_source is: "+satellite_tile_source);
@@ -207,16 +210,16 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		mapController.animateTo(green_center);
 		mapView.invalidate();
 	}
-	
+
 	private void stepThree(){
 		second_layout = (AnimatedPanel)findViewById(R.id.second_layout);
 		second_layout.setLayoutAnimExit(second_layout, second_layout.getContext());
-		
+
 		DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        System.out.println("DPI is: "+dm.heightPixels+", "+dm.widthPixels);
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		System.out.println("DPI is: "+dm.heightPixels+", "+dm.widthPixels);
 		inputUserID();
-		
+
 		white_text_paint.setColor(Color.WHITE);
 		white_text_paint.setStyle(Paint.Style.STROKE);
 		white_text_paint.setTextSize(24);
@@ -224,27 +227,27 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		red_text_paint.setColor(Color.RED);
 		red_text_paint.setStyle(Paint.Style.STROKE);
 		red_text_paint.setTextSize(24);
-		
+
 		green_text_paint.setColor(Color.GREEN);
 		green_text_paint.setStyle(Paint.Style.STROKE);
 		green_text_paint.setTextSize(24);
 
 		dashed_line_paint.setColor(Color.RED);
 		DashPathEffect dashPath = new DashPathEffect(new float[]{10,10}, 1);
-//		dashed_line_paint.setPathEffect(dashPath);
+		//		dashed_line_paint.setPathEffect(dashPath);
 		dashed_line_paint.setStrokeWidth(3);
-		
+
 		blue_line_paint.setColor(Color.BLUE);
 		blue_line_paint.setStrokeWidth(2);
 		blue_line_paint.setTextSize(24);
-		
+
 		yellow_boundary_paint.setColor(Color.WHITE);
 		yellow_boundary_paint.setStyle(Paint.Style.STROKE);
 		yellow_boundary_paint.setPathEffect(dashPath);
 		yellow_boundary_paint.setStrokeWidth(2);
-		
+
 		mapView = (MapView) findViewById(R.id.mapview);
-		
+
 		rll = (RotatingLinearLayout)findViewById(R.id.rotating_layout);
 		rll.setBearing(bearing_degrees);
 		System.out.println("Check Point 01");
@@ -270,9 +273,9 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		mapController.setCenter(point2);  
 		mapView.setUseDataConnection(false);
 		initMainControls();
-		
+
 		mapView.invalidate();
-/*		mapView.setMapListener(new MapListener() {
+		/*		mapView.setMapListener(new MapListener() {
 
 			@Override
 			public boolean onZoom(ZoomEvent arg0) {
@@ -301,23 +304,23 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			}
 		});*/
 		mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        provider = mlocManager.getBestProvider(criteria, false);
+		Criteria criteria = new Criteria();
+		provider = mlocManager.getBestProvider(criteria, false);
 
-        LocationListener mlocListener = new GeoUpdateHandler();
-        
-        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
-        mlocManager.addGpsStatusListener(gpsListener);
-        if (!mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){  
-            System.out.println("GPS disabled");
-      }
+		LocationListener mlocListener = new GeoUpdateHandler();
+
+		mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+		mlocManager.addGpsStatusListener(gpsListener);
+		if (!mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){  
+			System.out.println("GPS disabled");
+		}
 
 	}
-	
-	
-	
+
+
+
 	private void inputUserID(){
-		
+
 		LayoutInflater factory = LayoutInflater.from(this);
 		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		final View textEntryView = factory.inflate(R.layout.input_form, null);
@@ -331,8 +334,8 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String user_id = input1.getText().toString();
-//				validateUserID(""+club_id, user_id);
-//				checkValidity();
+				//				validateUserID(""+club_id, user_id);
+				//				checkValidity();
 			}
 		});
 
@@ -343,7 +346,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		});
 		alert.show();
 	}
-	
+
 	private void checkValidity(){
 		System.out.println("checkValidity called:"+validation_result+"|");
 		if(!validation_result.contains("yes")){
@@ -353,18 +356,18 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			confirmation.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					inputUserID();
-				  }
-				});
+				}
+			});
 
-				confirmation.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
-				  public void onClick(DialogInterface dialog, int whichButton) {
-				    System.exit(0);
-				  }
-				});
-				confirmation.show();
+			confirmation.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					System.exit(0);
+				}
+			});
+			confirmation.show();
 		}
 	}
-	
+
 	public void onLocationChanged(Location location) {}
 	public void onProviderDisabled(String provider) {}
 	public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -386,15 +389,15 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 	    System.out.println("onTouchEvent called");
 	    return super.onTouchEvent(event);
 	}*/
-	
-/*	@Override
+
+	/*	@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
 		System.out.println("Dispatch Touch Events called: "+event.getX()+", "+event.getY());
 		float[] coords = new float[] {
                 event.getX(), event.getY()
         };
-		
-	        
+
+
 	        adjustCoords(coords, bearing_degrees);
 	        MotionEvent evt = MotionEvent.obtain(event.getDownTime(), event.getEventTime(), event
 	                .getAction(), coords[0], coords[1], event.getPressure(), event.getSize(), event
@@ -444,7 +447,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 				c.drawText(""+hole_list.get(hole_number).hazard_list.get(i).getHazardFront().distanceTo(user_location), green_rear_point.x+100, green_rear_point.y, red_text_paint);
 				c.restore();
 
-				
+
 				mapView.getProjection().toPixels(hole_list.get(hole_number).hazard_list.get(i).getHazardRear(), green_rear_point);
 				c.save();
 				c.rotate(bearing_degrees, green_rear_point.x, green_rear_point.y);
@@ -458,18 +461,18 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			c.rotate(bearing_degrees, green_center_point.x, green_center_point.y);
 			c.drawBitmap(red_flag_bmp, green_center_point.x-25, green_center_point.y-205, null);
 			c.restore();
-			
+
 			c.save();
 			c.rotate(bearing_degrees, green_rear_point.x, green_rear_point.y);
 			c.drawBitmap(tee_bmp, green_rear_point.x-45, green_rear_point.y-105, null);
 			c.restore();
 
-//			c.drawText("x", green_rear_point.x, green_rear_point.y, red_text_paint);
+			//			c.drawText("x", green_rear_point.x, green_rear_point.y, red_text_paint);
 
 			Point user_point = new Point();
 			mapView.getProjection().toPixels(user_location, user_point);
 			float angle_to_green = ((float)user_location.bearingTo(green_center))-90;
-//			System.out.println("Angle: "+user_location.bearingTo(green_center));
+			//			System.out.println("Angle: "+user_location.bearingTo(green_center));
 			final RectF oval = new RectF();
 			oval.set(user_point.x - mapView.getProjection().metersToEquatorPixels(50), user_point.y - mapView.getProjection().metersToEquatorPixels(50), user_point.x + mapView.getProjection().metersToEquatorPixels(50), user_point.y + mapView.getProjection().metersToEquatorPixels(50));
 			c.drawArc(oval, angle_to_green-45, 90, false, yellow_boundary_paint);
@@ -477,27 +480,27 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			c.drawArc(oval, angle_to_green-45, 90, false, yellow_boundary_paint);
 			oval.set(user_point.x - mapView.getProjection().metersToEquatorPixels(150), user_point.y - mapView.getProjection().metersToEquatorPixels(150), user_point.x + mapView.getProjection().metersToEquatorPixels(150), user_point.y + mapView.getProjection().metersToEquatorPixels(150));
 			c.drawArc(oval, angle_to_green-45, 90, false, yellow_boundary_paint);
-			
-//			c.drawCircle(green_rear_point.x, green_rear_point.y, mapView.getProjection().metersToEquatorPixels(50), yellow_boundary_paint);
-//			c.drawCircle(green_rear_point.x, green_rear_point.y, mapView.getProjection().metersToEquatorPixels(100), yellow_boundary_paint);
-//			c.drawCircle(green_rear_point.x, green_rear_point.y, mapView.getProjection().metersToEquatorPixels(150), yellow_boundary_paint);
+
+			//			c.drawCircle(green_rear_point.x, green_rear_point.y, mapView.getProjection().metersToEquatorPixels(50), yellow_boundary_paint);
+			//			c.drawCircle(green_rear_point.x, green_rear_point.y, mapView.getProjection().metersToEquatorPixels(100), yellow_boundary_paint);
+			//			c.drawCircle(green_rear_point.x, green_rear_point.y, mapView.getProjection().metersToEquatorPixels(150), yellow_boundary_paint);
 
 			c.save();
 			c.rotate(bearing_degrees, user_point.x, user_point.y);
 			c.drawBitmap(golfer_bmp, user_point.x-63, user_point.y-99, null);
 			c.restore();
-			
+
 			if(tapped_location!=null){
-				
+
 				mapView.getProjection().toPixels(tapped_location, green_rear_point);
-				
+
 				float[] tmp = new float[2];
 				tmp[0] = green_rear_point.x;
 				tmp[1] = green_rear_point.y;
-Matrix m = new Matrix();
-//				c.drawLine(user_point.x, user_point.y, green_rear_point.x, green_rear_point.y, blue_line_paint);
-//				c.drawLine( green_rear_point.x, green_rear_point.y, green_center_point.x, green_center_point.y, blue_line_paint);
-				
+				Matrix m = new Matrix();
+				//				c.drawLine(user_point.x, user_point.y, green_rear_point.x, green_rear_point.y, blue_line_paint);
+				//				c.drawLine( green_rear_point.x, green_rear_point.y, green_center_point.x, green_center_point.y, blue_line_paint);
+
 				c.save();
 
 				c.rotate(bearing_degrees, green_rear_point.x, green_rear_point.y);
@@ -505,23 +508,23 @@ Matrix m = new Matrix();
 				c.drawBitmap(cross_bmp, green_rear_point.x-30, green_rear_point.y+25, null);
 				c.drawText(""+tapped_location.distanceTo(user_location), green_rear_point.x+60, green_rear_point.y+70, blue_line_paint);
 				c.restore();
-//				m.mapPoints(tmp);
-//				m.setTranslate((int)(-200*Math.cos(bearing_degrees)), 0);
-//				m.mapPoints(tmp);
+				//				m.mapPoints(tmp);
+				//				m.setTranslate((int)(-200*Math.cos(bearing_degrees)), 0);
+				//				m.mapPoints(tmp);
 				c.drawLine(user_point.x, user_point.y, tmp[0], tmp[1]+75, blue_line_paint);
 				c.drawLine( tmp[0], tmp[1]+75, green_center_point.x, green_center_point.y, blue_line_paint);
 			}
 		}
-		
+
 		@Override
-        public boolean onDoubleTap(MotionEvent e, MapView mapView) {
-			
+		public boolean onDoubleTap(MotionEvent e, MapView mapView) {
+
 			System.out.println("Double tap: "+e.getX()+", "+e.getY());
 			IGeoPoint point = mapView.getProjection().fromPixels(e.getX(), e.getY());
 			tapped_location = new GeoPoint(point.getLatitudeE6(), point.getLongitudeE6());
 			mapView.invalidate();
-            return true;
-        }
+			return true;
+		}
 	}
 
 	private void initMainControls(){
@@ -564,7 +567,7 @@ Matrix m = new Matrix();
 					mapController.setZoom(++zoom_level);
 					mapView.invalidate();
 				}
-				}
+			}
 		});
 		final Button zoom_out_button = (Button)findViewById(R.id.zoom_out);
 		zoom_out_button.setOnClickListener(new View.OnClickListener() {
@@ -588,7 +591,7 @@ Matrix m = new Matrix();
 				second_layout.setLayoutAnimExit(second_layout, second_layout.getContext());
 			}
 		});
-		
+
 		final Button other_button = (Button)findViewById(R.id.another_button);
 		other_button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -596,40 +599,40 @@ Matrix m = new Matrix();
 				second_layout.setLayoutAnimEntrance(second_layout, second_layout.getContext());
 			}
 		});
-		
+
 		final Button hole_button = (Button)findViewById(R.id.hole);
 		hole_button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-//				getHole();
+				//				getHole();
 			}
 		});
 	}
 
-	
 
-//	private void readHoleFile(){
-//		InputStream input_stream = null;
-//		Document document = null;
-//		DocumentBuilderFactory doc_build_factory = DocumentBuilderFactory.newInstance();
-//		DocumentBuilder doc_builder = null;
-//		try{
-//			doc_builder = doc_build_factory.newDocumentBuilder();
-//			input_stream = new FileInputStream("/sdcard/holes/MillGreenHoles.xml");
-//			document = doc_builder.parse(input_stream);
-//			stepTwo(document);
-//		}
-//		catch(Exception ex1){
-//			System.out.printn("Exception caught in the readHoleFile line 93: "+ex1);
-//			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-//	        alertbox.setMessage("Error occured reading the XML file: "+ex1);
-//	        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-//	            public void onClick(DialogInterface arg0, int arg1) {
-//	            }
-//	        });
-//	        alertbox.show();
-//		}
-//	}
-//	
+
+	//	private void readHoleFile(){
+	//		InputStream input_stream = null;
+	//		Document document = null;
+	//		DocumentBuilderFactory doc_build_factory = DocumentBuilderFactory.newInstance();
+	//		DocumentBuilder doc_builder = null;
+	//		try{
+	//			doc_builder = doc_build_factory.newDocumentBuilder();
+	//			input_stream = new FileInputStream("/sdcard/holes/MillGreenHoles.xml");
+	//			document = doc_builder.parse(input_stream);
+	//			stepTwo(document);
+	//		}
+	//		catch(Exception ex1){
+	//			System.out.printn("Exception caught in the readHoleFile line 93: "+ex1);
+	//			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+	//	        alertbox.setMessage("Error occured reading the XML file: "+ex1);
+	//	        alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+	//	            public void onClick(DialogInterface arg0, int arg1) {
+	//	            }
+	//	        });
+	//	        alertbox.show();
+	//		}
+	//	}
+	//	
 	private void stepTwo(Document document){
 		document.getDocumentElement().normalize();
 		Node club_node = document.getFirstChild();
@@ -662,10 +665,10 @@ Matrix m = new Matrix();
 		}
 		System.out.println("Number of hazards: "+hazard_list.size());
 
-//		getHole();
+		//		getHole();
 		stepThree();
 	}
-	
+
 	private void validateUserID(String id, String user_id){
 		HttpClient client = new DefaultHttpClient();
 		HttpPost post = new HttpPost("http://www.alliancerational.com/golf/uservalidate.php");
@@ -694,7 +697,7 @@ Matrix m = new Matrix();
 		}
 		this.validation_result = result;
 	}
-	
+
 	GpsStatus.Listener gpsListener = new GpsStatus.Listener() {
 		public void onGpsStatusChanged(int event) {
 			if( event == GpsStatus.GPS_EVENT_FIRST_FIX){
@@ -703,13 +706,13 @@ Matrix m = new Matrix();
 			}
 		}
 	};
-	
+
 	public class GeoUpdateHandler implements LocationListener {
 		public void onLocationChanged(Location location) {
 
 			System.out.println("XXX GeoUpdateHandler called: "+location.getLatitude()+", "+location.getLongitude());
-			 user_location = new GeoPoint(location.getLatitude(), location.getLongitude());
-			 mapView.invalidate();
+			user_location = new GeoPoint(location.getLatitude(), location.getLongitude());
+			mapView.invalidate();
 		}
 
 		public void onProviderDisabled(String provider) {
@@ -725,7 +728,7 @@ Matrix m = new Matrix();
 	}
 
 	private static String getTagValue(String sTag, Element eElement) {
-//		System.out.println("Sent Tag: "+sTag);
+		//		System.out.println("Sent Tag: "+sTag);
 		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
 		Node nValue = (Node) nlList.item(0);
 		String value = "0";

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class GolfClub {
 	private String club_id;
 	private ArrayList<Hole> hole_list = new ArrayList<Hole>();
+	Hole selected_hole;
 	GolfClub(Document document){
 		document.getDocumentElement().normalize();
 		Node club_node = document.getFirstChild();
@@ -45,5 +46,13 @@ public class GolfClub {
 
 	public ArrayList<Hole> getHoleList(){
 		return this.hole_list;
+	}
+	
+	public void setSelectedHole(int number){
+		this.selected_hole = this.hole_list.get(number);
+	}
+	
+	public Hole getSelectedHole(){
+		return selected_hole;
 	}
 }
