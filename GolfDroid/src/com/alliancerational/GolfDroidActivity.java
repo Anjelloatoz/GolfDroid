@@ -147,6 +147,17 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		golf_club = new GolfClub(hole_file);
 		getHole(golf_club.getHoleList());
 	}
+	
+	private void stepTwo(){
+		second_layout = (AnimatedPanel)findViewById(R.id.second_layout);
+		second_layout.setLayoutAnimExit(second_layout, second_layout.getContext());
+		MapViewAgent map = new MapViewAgent(findViewById(R.id.mapview), false);
+		rll = (RotatingLinearLayout)findViewById(R.id.rotating_layout);
+		rll.setBearing(bearing_degrees);
+		map.setTiles("MillGreen2");
+		map.setCenter(51776898, -196173);
+		map.setZoom(18);
+	}
 
 	private void getHole(final ArrayList<Hole> holes_list){
 		final RadioButton[] rb = new RadioButton[holes_list.size()];
@@ -168,7 +179,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		this.startActivityForResult(intent, REQUEST_CODE);
 
 		System.out.println("After calling the sub activity.");
-		AlertDialog.Builder hole_dialog = new AlertDialog.Builder(this);
+/*		AlertDialog.Builder hole_dialog = new AlertDialog.Builder(this);
 		hole_dialog.setTitle("Hole");
 		hole_dialog.setMessage("Please select the hole");
 		hole_dialog.setView(rg);
@@ -183,13 +194,14 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 				hole_number = idx;
 			}
 		});
-		hole_dialog.show();
+		hole_dialog.show();*/
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		int chosen_hole_number = data.getIntExtra("selection", 0);
 		golf_club.setSelectedHole(chosen_hole_number);
+		stepTwo();
 	}
 
 	private void setHole(Hole hole){
@@ -212,8 +224,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 	}
 
 	private void stepThree(){
-		second_layout = (AnimatedPanel)findViewById(R.id.second_layout);
-		second_layout.setLayoutAnimExit(second_layout, second_layout.getContext());
+		
 
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -248,8 +259,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 
 		mapView = (MapView) findViewById(R.id.mapview);
 
-		rll = (RotatingLinearLayout)findViewById(R.id.rotating_layout);
-		rll.setBearing(bearing_degrees);
+		
 		System.out.println("Check Point 01");
 
 		mapView.setTileSource(new OnlineTileSourceBase("MillGreen2", ResourceProxy.string.unknown, 0, 19, 256, ".png", "http://mt3.google.com/vt/v=w2.97") {
@@ -263,14 +273,14 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 		golfer_bmp = BitmapFactory.decodeResource(getResources(), R.drawable.golfer);
 		cross_bmp = BitmapFactory.decodeResource(getResources(), R.drawable.cross);
 
-		MapOverlay map_overlay = new MapOverlay(this);
-		mapView.getOverlays().add(map_overlay);
+/*		MapOverlay map_overlay = new MapOverlay(this);
+		mapView.getOverlays().add(map_overlay);*/
 
 		mapController = mapView.getController();
 		mapController.setZoom(18);
 		zoom_level = 18;
 		GeoPoint point2 = new GeoPoint(51776898, -196173);
-		mapController.setCenter(point2);  
+		mapController.setCenter(point2);
 		mapView.setUseDataConnection(false);
 		initMainControls();
 
@@ -424,7 +434,6 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 
 			Point green_front_point = new Point();
 			mapView.getProjection().toPixels(green_front, green_front_point);
-
 			c.save();
 			c.rotate(bearing_degrees, green_front_point.x, green_front_point.y);
 			c.drawLine(green_front_point.x, green_front_point.y , (green_front_point.x)+90, green_front_point.y, green_text_paint);
