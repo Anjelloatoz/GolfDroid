@@ -277,7 +277,7 @@ public class GolfDroidActivity extends Activity implements LocationListener{
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String user_id = input1.getText().toString();
 				validateUserID(""+club_id, user_id);
-				checkValidity();
+//				checkValidity();
 			}
 		});
 
@@ -579,7 +579,7 @@ Matrix m = new Matrix();
 		DocumentBuilder doc_builder = null;
 		try{
 			doc_builder = doc_build_factory.newDocumentBuilder();
-			input_stream = new FileInputStream("/sdcard/holes/MillGreenHoles.xml");
+			input_stream = new FileInputStream("/mnt/sdcard/holes/MillGreenHoles.xml");
 			document = doc_builder.parse(input_stream);
 		}
 		catch(Exception ex1){
