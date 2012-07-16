@@ -1,5 +1,10 @@
 package com.alliancerational;
 
+/*
+ * This is a version with the OpenStreetMapTileProviderConstants.java file edited to set the tile path to
+ *mnt/sdcard/osmdroid.
+ * */
+
 import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
